@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Farming Assistant - Smart Crop Advisor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Noto+Sans+Gurmukhi:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    :root {
+      --bg-deep: #090e17;
+      --bg-card: #101926;
+      --border-dark: #1c2b42;
+      --border-glow: rgba(0, 200, 151, 0.15);
+      --accent-green: #00c897;
+      --accent-green-rgb: 0, 200, 151;
+      --accent-red: #ff6b6b;
+      --accent-pink: #f06595;
+      --accent-yellow: #fcc419;
+      --accent-blue: #339af0;
+      --accent-purple: #ae3ec9;
+      --accent-orange: #f76707;
+      --text-white: #f8f9fa;
+      --text-muted: #a9b1bd;
+      --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Outfit', 'Noto Sans Gurmukhi', sans-serif;
+      background-color: var(--bg-deep);
+      background-image: radial-gradient(circle at 50% 50%, #111d30 0%, var(--bg-deep) 100%);
+      background-attachment: fixed;
+      color: var(--text-white);
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+    a { color: inherit; text-decoration: none; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      gap: 8px; padding: 10px 20px; border-radius: 30px; font-weight: 600;
+      font-size: 15px; cursor: pointer; transition: var(--transition-smooth);
+      border: 1px solid transparent;
+    }
+    .btn-primary { background-color: var(--accent-green); color: #090e17; box-shadow: 0 4px 15px rgba(var(--accent-green-rgb), 0.3); }
+    .btn-primary:hover { background-color: #00b085; box-shadow: 0 6px 20px rgba(var(--accent-green-rgb), 0.5); transform: translateY(-2px); }
+    .btn-secondary { background-color: rgba(16,25,38,0.6); border: 1px solid var(--border-dark); color: var(--text-white); }
+    .btn-secondary:hover { border-color: var(--accent-green); background-color: rgba(16,25,38,0.8); transform: translateY(-2px); }
+    header { border-bottom: 1px solid var(--border-dark); backdrop-filter: blur(12px); position: sticky; top: 0; z-index: 100; background-color: rgba(9,14,23,0.8); }
+    header .navbar { height: 75px; display: flex; align-items: center; justify-content: space-between; }
+    .logo { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 700; color: var(--accent-green); }
+    .nav-actions { display: flex; align-items: center; gap: 12px; }
+    .lang-switcher { display: flex; background-color: rgba(16,25,38,0.8); border: 1px solid var(--border-dark); border-radius: 20px; padding: 3px; }
+    .lang-btn { padding: 6px 14px; border-radius: 17px; font-size: 13px; font-weight: 600; background: none; border: none; color: var(--text-muted); cursor: pointer; transition: var(--transition-smooth); font-family: inherit; }
+    .lang-btn.active { background-color: var(--accent-green); color: #090e17; }
+    .hero { padding: 80px 0 60px 0; text-align: center; }
+    .hero-badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 30px; border: 1px solid rgba(var(--accent-green-rgb), 0.2); background-color: rgba(var(--accent-green-rgb), 0.05); color: var(--accent-green); font-size: 13px; font-weight: 600; margin-bottom: 28px; }
+    .hero h1 { font-size: 56px; font-weight: 800; letter-spacing: -1.5px; line-height: 1.15; margin-bottom: 24px; max-width: 800px; margin-left: auto; margin-right: auto; }
+    .hero h1 span { color: var(--accent-green); position: relative; }
+    .hero h1 span::after { content: ''; position: absolute; bottom: 2px; left: 0; width: 100%; height: 3px; background-color: var(--accent-green); opacity: 0.3; border-radius: 2px; }
+    .hero-subtext { font-size: 18px; color: var(--text-muted); max-width: 650px; margin: 0 auto 36px auto; }
+    .hero-actions { display: flex; justify-content: center; gap: 16px; margin-bottom: 70px; }
+    .metrics-row { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--border-dark); border-bottom: 1px solid var(--border-dark); padding: 40px 0; max-width: 800px; margin: 0 auto; }
+    .metric-col { text-align: center; position: relative; }
+    .metric-col:not(:last-child)::after { content: ''; position: absolute; right: 0; top: 10%; height: 80%; width: 1px; background-color: var(--border-dark); }
+    .metric-val { font-size: 42px; font-weight: 800; color: var(--accent-green); line-height: 1; margin-bottom: 8px; }
+    .metric-label { font-size: 14px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .section-title { font-size: 32px; font-weight: 700; text-align: center; margin-bottom: 48px; }
+    .section-title span { color: var(--accent-green); }
+    .section { padding: 80px 0; }
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; }
+    .card { background-color: rgba(16,25,38,0.4); border: 1px solid var(--border-dark); border-radius: 16px; padding: 32px; transition: var(--transition-smooth); position: relative; overflow: hidden; }
+    .card:hover { border-color: rgba(var(--accent-green-rgb), 0.5); transform: translateY(-4px); box-shadow: 0 10px 30px rgba(0,0,0,0.3), 0 0 15px var(--border-glow); }
+    .card-icon-wrapper { width: 48px; height: 48px; border-radius: 12px; background-color: rgba(28,43,66,0.6); display: flex; align-items: center; justify-content: center; margin-bottom: 24px; transition: var(--transition-smooth); }
+    .card:hover .card-icon-wrapper { background-color: rgba(var(--accent-green-rgb), 0.15); }
+    .card-icon { color: var(--accent-green); }
+    .card-title { font-size: 19px; font-weight: 600; margin-bottom: 12px; }
+    .card-desc { color: var(--text-muted); font-size: 14px; line-height: 1.6; }
+    .tech-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+    .tech-card { text-align: center; padding: 24px; }
+    .tech-card .card-icon-wrapper { margin-left: auto; margin-right: auto; }
+    .split-section { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+    .list-benefits { display: flex; flex-direction: column; gap: 24px; }
+    .benefit-item { display: flex; align-items: flex-start; gap: 16px; }
+    .benefit-check { background-color: rgba(var(--accent-green-rgb), 0.1); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--accent-green); }
+    .benefit-title { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+    .benefit-desc { color: var(--text-muted); font-size: 14px; }
+    .visual-panel { background-color: rgba(16,25,38,0.4); border: 1px solid var(--border-dark); border-radius: 24px; height: 380px; display: flex; align-items: center; justify-content: center; gap: 40px; position: relative; }
+    .visual-emoji { font-size: 64px; animation: float 4s ease-in-out infinite; }
+    .visual-emoji:nth-child(2) { animation-delay: 1.3s; }
+    .visual-emoji:nth-child(3) { animation-delay: 2.6s; }
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+    .cta-section { padding: 100px 0; text-align: center; border-top: 1px solid var(--border-dark); }
+    .cta-title { font-size: 40px; font-weight: 800; margin-bottom: 20px; }
+    .cta-title span { color: var(--accent-green); }
+    .cta-subtitle { color: var(--text-muted); font-size: 18px; max-width: 600px; margin: 0 auto 36px auto; }
+
+    /* Dashboard */
+    #dashboard-page { display: none; padding: 30px 0 100px 0; }
+    .dashboard-nav { background-color: rgba(16,25,38,0.4); border: 1px solid var(--border-dark); border-radius: 16px; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; }
+    .dash-badge { display: flex; align-items: center; gap: 8px; padding: 6px 12px; background-color: rgba(28,43,66,0.6); border: 1px solid var(--border-dark); border-radius: 10px; font-size: 14px; font-weight: 500; }
+    .dashboard-layout { display: grid; grid-template-columns: 360px 1fr; gap: 30px; align-items: start; }
+    .cred-panel { margin-bottom: 20px; background-color: rgba(16,25,38,0.6); border: 1px solid var(--border-dark); border-radius: 16px; }
+    .cred-header { padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; font-weight: 600; font-size: 14px; border-bottom: 1px solid transparent; user-select: none; }
+    .cred-header.open { border-bottom-color: var(--border-dark); }
+    .cred-content { padding: 0 20px; max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out, padding 0.3s ease-out; }
+    .cred-content.open { padding: 20px; max-height: 300px; }
+    .cred-content .form-group { margin-bottom: 12px; }
+    .cred-content .form-group:last-child { margin-bottom: 0; }
+    .dash-inputs { display: flex; flex-direction: column; gap: 20px; }
+    .visual-inputs-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 10px; }
+    .input-badge-card { background-color: rgba(16,25,38,0.4); border: 1px solid var(--border-dark); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 8px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; transition: var(--transition-smooth); color: var(--text-muted); border-left: 4px solid transparent; }
+    .input-badge-card.active { background-color: rgba(16,25,38,0.8); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+    .input-badge-card.crop.active { border-left: 4px solid var(--accent-green); color: var(--accent-green); }
+    .input-badge-card.problem.active { border-left: 4px solid var(--accent-red); color: var(--accent-red); }
+    .input-badge-card.location.active { border-left: 4px solid var(--accent-pink); color: var(--accent-pink); }
+    .input-badge-card.season.active { border-left: 4px solid var(--accent-yellow); color: var(--accent-yellow); }
+    .input-badge-value { color: var(--text-white); font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .form-card { background-color: rgba(16,25,38,0.4); border: 1px solid var(--border-dark); border-radius: 16px; padding: 24px; }
+    .form-group { margin-bottom: 20px; }
+    .form-group:last-child { margin-bottom: 0; }
+    .form-label { display: block; font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .form-control { width: 100%; background-color: rgba(9,14,23,0.6); border: 1px solid var(--border-dark); border-radius: 10px; padding: 12px 16px; color: var(--text-white); font-family: inherit; font-size: 15px; transition: var(--transition-smooth); }
+    .form-control:focus { outline: none; border-color: var(--accent-green); box-shadow: 0 0 10px rgba(0,200,151,0.1); }
+    .dash-outputs { display: flex; flex-direction: column; gap: 24px; }
+    .outputs-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-dark); padding-bottom: 16px; }
+    .status-badge { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 20px; background-color: rgba(28,43,66,0.6); border: 1px solid var(--border-dark); }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background-color: var(--text-muted); }
+    .status-badge.active .status-dot { background-color: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); animation: pulse-green 2s infinite; }
+    .status-badge.loading .status-dot { background-color: var(--accent-yellow); box-shadow: 0 0 8px var(--accent-yellow); animation: pulse-yellow 1s infinite; }
+    @keyframes pulse-green { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+    @keyframes pulse-yellow { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+    .weather-widget { background: linear-gradient(135deg, rgba(16,25,38,0.8) 0%, rgba(28,43,66,0.4) 100%); border: 1px solid var(--border-dark); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 16px; transition: var(--transition-smooth); }
+    .weather-widget.active { border-color: var(--accent-blue); box-shadow: 0 4px 20px rgba(51,154,240,0.15); }
+    .weather-header { display: flex; justify-content: space-between; align-items: center; }
+    .weather-title { font-weight: 700; font-size: 16px; color: var(--accent-blue); display: flex; align-items: center; gap: 8px; }
+    .weather-loc-label-box { font-size: 11px; background-color: rgba(51,154,240,0.1); color: var(--accent-blue); padding: 4px 8px; border-radius: 4px; font-weight: 600; }
+    .weather-main { display: grid; grid-template-columns: auto 1fr; gap: 24px; align-items: center; }
+    .weather-temp-block { display: flex; align-items: center; gap: 12px; }
+    .weather-icon-img { width: 64px; height: 64px; object-fit: contain; filter: drop-shadow(0 0 4px rgba(51,154,240,0.3)); }
+    .weather-temp { font-size: 32px; font-weight: 700; line-height: 1; }
+    .weather-details { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; border-left: 1px solid var(--border-dark); padding-left: 24px; }
+    .weather-detail-item { display: flex; flex-direction: column; }
+    .weather-detail-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; }
+    .weather-detail-val { font-size: 14px; font-weight: 600; }
+    .weather-advisory-box { background-color: rgba(9,14,23,0.4); border-left: 3px solid var(--accent-blue); padding: 12px 16px; border-radius: 0 8px 8px 0; font-size: 14px; color: var(--text-white); }
+    .outputs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .output-card { background-color: rgba(16,25,38,0.4); border: 1px solid var(--border-dark); border-radius: 16px; padding: 24px; min-height: 160px; transition: var(--transition-smooth); }
+    .output-card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; font-size: 13px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+    .output-card-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .output-card.cause { border-top: 3px solid var(--accent-red); }
+    .output-card.cause .output-card-dot, .output-card.cause .output-card-header { color: var(--accent-red); background-color: var(--accent-red); }
+    .output-card.cause .output-card-header { background: none; }
+    .output-card.solution { border-top: 3px solid var(--accent-green); }
+    .output-card.solution .output-card-dot, .output-card.solution .output-card-header { color: var(--accent-green); background-color: var(--accent-green); }
+    .output-card.solution .output-card-header { background: none; }
+    .output-card.fertilizer { border-top: 3px solid var(--accent-yellow); }
+    .output-card.fertilizer .output-card-dot, .output-card.fertilizer .output-card-header { color: var(--accent-yellow); background-color: var(--accent-yellow); }
+    .output-card.fertilizer .output-card-header { background: none; }
+    .output-card.irrigation { border-top: 3px solid var(--accent-blue); }
+    .output-card.irrigation .output-card-dot, .output-card.irrigation .output-card-header { color: var(--accent-blue); background-color: var(--accent-blue); }
+    .output-card.irrigation .output-card-header { background: none; }
+    .output-card.prevention { border-top: 3px solid var(--accent-purple); }
+    .output-card.prevention .output-card-dot, .output-card.prevention .output-card-header { color: var(--accent-purple); background-color: var(--accent-purple); }
+    .output-card.prevention .output-card-header { background: none; }
+    .output-card.subsidy { border-top: 3px solid var(--accent-orange); }
+    .output-card.subsidy .output-card-dot, .output-card.subsidy .output-card-header { color: var(--accent-orange); background-color: var(--accent-orange); }
+    .output-card.subsidy .output-card-header { background: none; }
+    .output-card-content { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+    .skeleton-text { height: 12px; background-color: var(--border-dark); border-radius: 6px; margin-bottom: 8px; width: 100%; animation: skeleton-pulse 1.5s infinite; }
+    .skeleton-text:nth-child(2) { width: 85%; }
+    .skeleton-text:nth-child(3) { width: 60%; }
+    @keyframes skeleton-pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+
+    /* AI Chat Assistant */
+    #chatFab {
+      position: fixed; bottom: 32px; right: 32px;
+      width: 62px; height: 62px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-green) 0%, #00a07a 100%);
+      border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 8px 30px rgba(var(--accent-green-rgb), 0.5);
+      z-index: 9000; transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s ease;
+      animation: fab-pulse 3s ease-in-out infinite;
+    }
+    #chatFab:hover { transform: scale(1.1) translateY(-3px); box-shadow: 0 12px 40px rgba(var(--accent-green-rgb), 0.7); }
+    #chatFab svg { color: #090e17; transition: all 0.3s ease; }
+    #chatFab.open svg { transform: rotate(90deg); }
+    @keyframes fab-pulse {
+      0%,100% { box-shadow: 0 8px 30px rgba(var(--accent-green-rgb),.5), 0 0 0 0 rgba(var(--accent-green-rgb),.4); }
+      50%      { box-shadow: 0 8px 30px rgba(var(--accent-green-rgb),.5), 0 0 0 10px rgba(var(--accent-green-rgb),0); }
+    }
+    #chatUnreadBadge {
+      position: absolute; top: 0; right: 0;
+      width: 20px; height: 20px; border-radius: 50%;
+      background-color: var(--accent-red); font-size: 11px; font-weight: 700; color: #fff;
+      display: none; align-items: center; justify-content: center; border: 2px solid var(--bg-deep);
+    }
+    #chatOverlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.35); backdrop-filter: blur(3px);
+      z-index: 8900; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+    }
+    #chatOverlay.visible { opacity: 1; pointer-events: all; }
+    #chatPanel {
+      position: fixed; bottom: 110px; right: 32px;
+      width: 420px; max-height: 680px; height: calc(100vh - 160px);
+      background: linear-gradient(180deg, #0d1829 0%, #091320 100%);
+      border: 1px solid rgba(var(--accent-green-rgb), 0.25); border-radius: 24px;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.6), 0 0 40px rgba(var(--accent-green-rgb),0.08);
+      z-index: 9100; display: flex; flex-direction: column; overflow: hidden;
+      transform: scale(0.85) translateY(30px); opacity: 0; pointer-events: none;
+      transform-origin: bottom right; transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s ease;
+    }
+    #chatPanel.open { transform: scale(1) translateY(0); opacity: 1; pointer-events: all; }
+    .chat-header {
+      padding: 18px 20px 16px; background: linear-gradient(135deg, rgba(0,200,151,0.12) 0%, rgba(0,160,122,0.05) 100%);
+      border-bottom: 1px solid rgba(var(--accent-green-rgb),0.15); display: flex; align-items: center; gap: 14px; flex-shrink: 0;
+    }
+    .chat-avatar { width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg, var(--accent-green) 0%, #00a07a 100%); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; box-shadow: 0 4px 12px rgba(var(--accent-green-rgb),0.4); }
+    .chat-header-info { flex: 1; min-width: 0; }
+    .chat-header-name { font-size: 15px; font-weight: 700; color: var(--text-white); }
+    .chat-header-status { font-size: 12px; color: var(--accent-green); display: flex; align-items: center; gap: 5px; margin-top: 2px; }
+    .chat-online-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent-green); animation: pulse-green 2s infinite; }
+    .chat-header-actions { display: flex; gap: 8px; }
+    .chat-icon-btn { width: 34px; height: 34px; border-radius: 8px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: var(--transition-smooth); color: var(--text-muted); }
+    .chat-icon-btn:hover { background: rgba(255,255,255,0.12); color: var(--text-white); }
+    #chatContextBar { padding: 10px 16px; background: rgba(var(--accent-green-rgb), 0.05); border-bottom: 1px solid rgba(var(--accent-green-rgb), 0.1); display: none; gap: 8px; flex-wrap: wrap; align-items: center; }
+    #chatContextBar.visible { display: flex; }
+    .ctx-chip { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; border: 1px solid; display: flex; align-items: center; gap: 4px; }
+    .ctx-chip.crop { background: rgba(0,200,151,0.1); border-color: rgba(0,200,151,0.3); color: var(--accent-green); }
+    .ctx-chip.problem { background: rgba(255,107,107,0.1); border-color: rgba(255,107,107,0.3); color: var(--accent-red); }
+    .ctx-chip.loc { background: rgba(240,101,149,0.1); border-color: rgba(240,101,149,0.3); color: var(--accent-pink); }
+    .ctx-chip.season { background: rgba(252,196,25,0.1); border-color: rgba(252,196,25,0.3); color: var(--accent-yellow); }
+    .ctx-label { font-size: 11px; color: var(--text-muted); font-weight: 500; margin-right: 2px; }
+    #chatMessages { flex: 1; overflow-y: auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 14px; scroll-behavior: smooth; }
+    #chatMessages::-webkit-scrollbar { width: 4px; }
+    #chatMessages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+    .chat-welcome { text-align: center; padding: 20px 10px 10px; }
+    .chat-welcome-icon { width: 64px; height: 64px; border-radius: 20px; background: linear-gradient(135deg,rgba(var(--accent-green-rgb),.2),rgba(0,160,122,.1)); border: 1px solid rgba(var(--accent-green-rgb),.25); display: flex; align-items: center; justify-content: center; font-size: 30px; margin: 0 auto 16px; }
+    .chat-welcome h4 { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+    .chat-welcome p { font-size: 13px; color: var(--text-muted); line-height: 1.6; max-width: 260px; margin: 0 auto 20px; }
+    .quick-suggestions { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+    .quick-chip { padding: 9px 14px; border-radius: 10px; background: rgba(28,43,66,0.5); border: 1px solid var(--border-dark); font-size: 13px; color: var(--text-muted); cursor: pointer; text-align: left; transition: var(--transition-smooth); display: flex; align-items: center; gap: 8px; font-family: inherit; }
+    .quick-chip:hover { border-color: var(--accent-green); color: var(--text-white); background: rgba(var(--accent-green-rgb),0.08); transform: translateX(3px); }
+    .msg-row { display: flex; gap: 10px; align-items: flex-end; }
+    .msg-row.user { flex-direction: row-reverse; }
+    .msg-avatar { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; margin-bottom: 2px; }
+    .msg-avatar.bot { background: linear-gradient(135deg,var(--accent-green),#00a07a); }
+    .msg-avatar.user-av { background: rgba(51,154,240,0.2); border: 1px solid rgba(51,154,240,0.3); }
+    .msg-bubble { max-width: 78%; padding: 12px 15px; border-radius: 16px; font-size: 14px; line-height: 1.6; }
+    .msg-row.bot .msg-bubble { background: rgba(28,43,66,0.7); border: 1px solid rgba(255,255,255,0.06); border-bottom-left-radius: 4px; color: var(--text-white); }
+    .msg-row.user .msg-bubble { background: linear-gradient(135deg, var(--accent-green) 0%, #00a07a 100%); color: #090e17; border-bottom-right-radius: 4px; font-weight: 500; }
+    .msg-time { font-size: 10px; color: var(--text-muted); margin-top: 4px; padding: 0 4px; }
+    .msg-row.user .msg-time { text-align: right; }
+    .typing-indicator { display: flex; align-items: center; gap: 5px; padding: 14px 16px; }
+    .typing-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent-green); opacity: 0.4; animation: typing-bounce 1.2s infinite; }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes typing-bounce { 0%,80%,100%{transform:translateY(0);opacity:0.4}40%{transform:translateY(-6px);opacity:1} }
+    .error-bubble { padding: 10px 14px; background: rgba(255,107,107,0.1); border: 1px solid rgba(255,107,107,0.25); border-radius: 10px; color: var(--accent-red); font-size: 13px; display: flex; align-items: center; gap: 8px; }
+    .chat-input-area { padding: 14px 16px 18px; border-top: 1px solid rgba(255,255,255,0.06); background: rgba(9,14,23,0.6); flex-shrink: 0; }
+    .chat-input-row { display: flex; gap: 10px; align-items: flex-end; }
+    #chatInput { flex: 1; background: rgba(28,43,66,0.5); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 12px 16px; color: var(--text-white); font-family: inherit; font-size: 14px; resize: none; max-height: 120px; min-height: 44px; line-height: 1.5; outline: none; }
+    #chatInput:focus { border-color: rgba(var(--accent-green-rgb),0.5); }
+    #chatSendBtn { width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg,var(--accent-green),#00a07a); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #090e17; flex-shrink: 0; box-shadow: 0 4px 12px rgba(var(--accent-green-rgb),0.35); }
+    #chatSendBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .chat-input-hint { font-size: 11px; color: var(--text-muted); margin-top: 8px; display: flex; align-items: center; justify-content: space-between; }
+    #chatClearBtn { font-size: 11px; color: var(--text-muted); background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: inherit; }
+
+    @media (max-width: 992px) {
+      .dashboard-layout { grid-template-columns: 1fr; }
+      .tech-grid { grid-template-columns: repeat(2, 1fr); }
+      .split-section { grid-template-columns: 1fr; gap: 40px; }
+      .outputs-grid { grid-template-columns: 1fr 1fr; }
+      #chatPanel { width: calc(100vw - 40px); right: 20px; }
+    }
+    @media (max-width: 600px) {
+      .outputs-grid { grid-template-columns: 1fr; }
+      .metrics-row { grid-template-columns: 1fr; gap: 20px; }
+      .metric-col::after { display: none; }
+      .hero-actions { flex-direction: column; padding: 0 20px; }
+      #chatFab { bottom: 20px; right: 20px; }
+      #chatPanel { width: calc(100vw - 24px); right: 12px; bottom: 96px; height: calc(100vh - 130px); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- LANDING PAGE -->
+<div id="landing-page">
+  <header>
+    <div class="container navbar">
+      <div class="logo"><i data-lucide="leaf"></i> AI Farming Assistant</div>
+      <div class="nav-actions">
+        <div class="lang-switcher">
+          <button class="lang-btn active" id="lang-en" onclick="setLanguage('en')">English</button>
+          <button class="lang-btn" id="lang-pa" onclick="setLanguage('pa')">ਪੰ</button>
+        </div>
+        <button class="btn btn-primary" onclick="showDashboard()" data-t="enter_dashboard">Enter Dashboard</button>
+      </div>
+    </div>
+  </header>
+  <main class="container">
+    <section class="hero">
+      <div class="hero-badge">🚀 <span data-t="hero_badge">Smart Agricultural Technology</span></div>
+      <h1 data-t="hero_title">Turn Field Symptoms into <br><span>Instant Advice</span></h1>
+      <p class="hero-subtext" data-t="hero_subtext">An AI-powered crop advisory platform that transforms a farmer's four simple inputs into complete, actionable farming guidance in seconds.</p>
+      <div class="hero-actions">
+        <button class="btn btn-primary" onclick="showDashboard()" style="padding:14px 28px;" data-t="enter_dashboard_btn">Enter Dashboard &rarr;</button>
+        <button class="btn btn-secondary" onclick="scrollToFeatures()" style="padding:14px 28px;" data-t="learn_more">Learn More</button>
+      </div>
+      <div class="metrics-row">
+        <div class="metric-col"><div class="metric-val">4</div><div class="metric-label" data-t="metric_inputs">Input Fields</div></div>
+        <div class="metric-col"><div class="metric-val">6</div><div class="metric-label" data-t="metric_outputs">Advisory Outputs</div></div>
+        <div class="metric-col"><div class="metric-val">&lt;1s</div><div class="metric-label" data-t="metric_time">Response Time</div></div>
+      </div>
+    </section>
+    <section class="section" id="features">
+      <h2 class="section-title"><span data-t="features_title_1">Key</span> <span data-t="features_title_2">Features</span></h2>
+      <div class="features-grid">
+        <div class="card"><div class="card-icon-wrapper"><i data-lucide="zap" class="card-icon"></i></div><h3 class="card-title" data-t="feat_1_title">Instant Diagnosis</h3><p class="card-desc" data-t="feat_1_desc">Transform crop symptoms into likely causes in real time. No waiting for extension officers.</p></div>
+        <div class="card"><div class="card-icon-wrapper"><i data-lucide="globe" class="card-icon"></i></div><h3 class="card-title" data-t="feat_2_title">Localized Advice</h3><p class="card-desc" data-t="feat_2_desc">Guidance tailored to your crop, season, region, and local farming practices.</p></div>
+        <div class="card"><div class="card-icon-wrapper"><i data-lucide="shield-check" class="card-icon"></i></div><h3 class="card-title" data-t="feat_3_title">Prevention First</h3><p class="card-desc" data-t="feat_3_desc">Systemic steps to stop problems from recurring, not just treat symptoms.</p></div>
+        <div class="card"><div class="card-icon-wrapper"><i data-lucide="message-circle" class="card-icon"></i></div><h3 class="card-title" data-t="feat_4_title">AI Chat Assistant</h3><p class="card-desc" data-t="feat_4_desc">Ask follow-up questions anytime. Get clarifications on any aspect of the advice.</p></div>
+        <div class="card"><div class="card-icon-wrapper"><i data-lucide="landmark" class="card-icon"></i></div><h3 class="card-title" data-t="feat_5_title">Subsidy Awareness</h3><p class="card-desc" data-t="feat_5_desc">Learn about applicable government crop protection schemes and subsidies.</p></div>
+        <div class="card"><div class="card-icon-wrapper"><i data-lucide="languages" class="card-icon"></i></div><h3 class="card-title" data-t="feat_6_title">Bilingual Support</h3><p class="card-desc" data-t="feat_6_desc">Full support for English and Punjabi. Switch languages instantly.</p></div>
+      </div>
+    </section>
+    <section class="section">
+      <div class="split-section">
+        <div>
+          <h2 class="section-title" style="text-align:left;margin-bottom:24px;"><span data-t="why_title_1">Why Farmers</span> <span>Love It</span></h2>
+          <p style="color:var(--text-muted);margin-bottom:30px;" data-t="why_subtitle">Actionable Insights Without Waiting</p>
+          <div class="list-benefits">
+            <div class="benefit-item"><div class="benefit-check"><i data-lucide="check"></i></div><div><h4 class="benefit-title" data-t="benefit_1_title">No Expert Delays</h4><p class="benefit-desc" data-t="benefit_1_desc">Instant response instead of waiting days for an agricultural officer.</p></div></div>
+            <div class="benefit-item"><div class="benefit-check"><i data-lucide="check"></i></div><div><h4 class="benefit-title" data-t="benefit_2_title">Cost Effective</h4><p class="benefit-desc" data-t="benefit_2_desc">Free or low-cost per query. No consulting fees or visit charges.</p></div></div>
+            <div class="benefit-item"><div class="benefit-check"><i data-lucide="check"></i></div><div><h4 class="benefit-title" data-t="benefit_3_title">Always Available</h4><p class="benefit-desc" data-t="benefit_3_desc">24/7 access. Ask questions anytime during the growing season.</p></div></div>
+            <div class="benefit-item"><div class="benefit-check"><i data-lucide="check"></i></div><div><h4 class="benefit-title" data-t="benefit_4_title">Better Yields</h4><p class="benefit-desc" data-t="benefit_4_desc">Early diagnosis and prevention strategies lead to healthier crops and higher yields.</p></div></div>
+          </div>
+        </div>
+        <div class="visual-panel">
+          <span class="visual-emoji">&#127806;</span>
+          <span class="visual-emoji">&#128668;</span>
+          <span class="visual-emoji">&#127807;</span>
+        </div>
+      </div>
+    </section>
+    <section class="section">
+      <h2 class="section-title"><span data-t="tech_title_1">Technical</span> <span>Architecture</span></h2>
+      <div class="tech-grid">
+        <div class="card tech-card"><div class="card-icon-wrapper"><i data-lucide="monitor" class="card-icon"></i></div><h3 class="card-title">HTML / CSS / JS</h3><p class="card-desc" data-t="tech_1_desc">Clean, responsive frontend dashboard</p></div>
+        <div class="card tech-card"><div class="card-icon-wrapper"><i data-lucide="cpu" class="card-icon"></i></div><h3 class="card-title">Local Processing</h3><p class="card-desc" data-t="tech_2_desc">Secure direct API integrations</p></div>
+        <div class="card tech-card"><div class="card-icon-wrapper"><i data-lucide="zap" class="card-icon"></i></div><h3 class="card-title">Gemini AI</h3><p class="card-desc" data-t="tech_3_desc">Fast Gemini model for smart crop advice</p></div>
+        <div class="card tech-card"><div class="card-icon-wrapper"><i data-lucide="cloud-sun" class="card-icon"></i></div><h3 class="card-title">RESTful API</h3><p class="card-desc" data-t="tech_4_desc">Real-time local weather forecasts</p></div>
+      </div>
+    </section>
+    <section class="cta-section">
+      <h2 class="cta-title"><span data-t="cta_title_1">Ready to Transform Your</span> <span>Farming?</span></h2>
+      <p class="cta-subtitle" data-t="cta_sub">Start getting AI-powered crop advice in seconds. No signup required.</p>
+      <button class="btn btn-primary" onclick="showDashboard()" style="padding:16px 36px;font-size:16px;" data-t="cta_btn">Launch Dashboard Now &rarr;</button>
+    </section>
+  </main>
+</div>
+
+<!-- DASHBOARD PAGE -->
+<div id="dashboard-page" class="container">
+  <nav class="dashboard-nav">
+    <button class="btn btn-secondary" onclick="showHome()"><i data-lucide="arrow-left"></i> <span data-t="back_home">Back Home</span></button>
+    <div class="dash-badge"><span>&#128668;</span> <span data-t="dash_badge_title">Farmer Terminal Dashboard</span></div>
+    <div class="lang-switcher">
+      <button class="lang-btn active" id="dash-lang-en" onclick="setLanguage('en')">English</button>
+      <button class="lang-btn" id="dash-lang-pa" onclick="setLanguage('pa')">ਪੰ</button>
+    </div>
+  </nav>
+  <div class="dashboard-layout">
+    <div class="dash-inputs">
+      <div class="cred-panel">
+        <div class="cred-header" id="credToggle" onclick="toggleCredentials()">
+          <span style="display:flex;align-items:center;gap:8px;"><i data-lucide="key" style="width:16px;"></i> <span data-t="api_credentials">API Credentials Setup</span></span>
+          <i data-lucide="chevron-down" id="credArrow" style="width:16px;transition:var(--transition-smooth);"></i>
+        </div>
+        <div class="cred-content" id="credContent">
+          <div class="form-group">
+            <label class="form-label" data-t="lbl_weather_key">WeatherAPI.com Key</label>
+            <input type="password" id="weatherKey" class="form-control" placeholder="Enter WeatherAPI Key..." onchange="saveCredentials()">
+          </div>
+          <p style="font-size:11px;color:var(--accent-green);margin-top:8px;" data-t="api_save_msg">Keys saved securely in local storage.</p>
+        </div>
+      </div>
+      <div class="visual-inputs-grid">
+        <div class="input-badge-card crop" id="cropBadge">
+          <span style="display:flex;align-items:center;justify-content:space-between;"><span data-t="badge_crop">CROP</span><i data-lucide="sprout"></i></span>
+          <div class="input-badge-value" id="cropVal">-</div>
+        </div>
+        <div class="input-badge-card problem" id="problemBadge">
+          <span style="display:flex;align-items:center;justify-content:space-between;"><span data-t="badge_problem">PROBLEM</span><i data-lucide="alert-triangle"></i></span>
+          <div class="input-badge-value" id="problemVal">-</div>
+        </div>
+        <div class="input-badge-card location" id="locationBadge">
+          <span style="display:flex;align-items:center;justify-content:space-between;"><span data-t="badge_location">LOCATION</span><i data-lucide="map-pin"></i></span>
+          <div class="input-badge-value" id="locationVal">-</div>
+        </div>
+        <div class="input-badge-card season" id="seasonBadge">
+          <span style="display:flex;align-items:center;justify-content:space-between;"><span data-t="badge_season">SEASON</span><i data-lucide="sun"></i></span>
+          <div class="input-badge-value" id="seasonVal">-</div>
+        </div>
+      </div>
+      <div class="form-card">
+        <div class="form-group">
+          <label class="form-label" for="inputCrop" data-t="lbl_crop">Crop Name</label>
+          <input type="text" id="inputCrop" class="form-control" placeholder="e.g. Wheat, Rice, Tomato" oninput="syncBadge('crop')">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="inputProblem" data-t="lbl_problem">Detected Problem</label>
+          <input type="text" id="inputProblem" class="form-control" placeholder="e.g. Yellow spots on leaf, stem rot" oninput="syncBadge('problem')">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="inputLocation" data-t="lbl_location">Region / Location</label>
+          <input type="text" id="inputLocation" class="form-control" placeholder="e.g. Punjab, India" oninput="syncBadge('location')">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="inputSeason" data-t="lbl_season">Season Profile</label>
+          <select id="inputSeason" class="form-control" onchange="syncBadge('season')">
+            <option value="" disabled selected id="opt_placeholder">Select Season...</option>
+            <option value="Rabi / Winter" id="opt_rabi">Rabi (Winter)</option>
+            <option value="Kharif / Summer" id="opt_kharif">Kharif (Summer)</option>
+            <option value="Zaid / Spring" id="opt_zaid">Zaid (Spring)</option>
+            <option value="Monsoon / Rainy" id="opt_monsoon">Monsoon (Rainy)</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" style="width:100%;margin-top:10px;border-radius:10px;height:48px;" onclick="runAnalysis()">
+          <i data-lucide="sparkles"></i> <span data-t="btn_analyze">Analyze Crop Status</span>
+        </button>
+      </div>
+    </div>
+    <div class="dash-outputs">
+      <div class="outputs-header">
+        <h3 style="font-weight:700;font-size:20px;" data-t="advisory_report">AI Farm Advisory Report</h3>
+        <div class="status-badge" id="statusBadge"><div class="status-dot"></div><span id="statusText" data-t="status_idle">Ready for Input</span></div>
+      </div>
+      <div class="weather-widget" id="weatherWidget">
+        <div class="weather-header">
+          <div class="weather-title"><i data-lucide="cloud-sun"></i> <span data-t="weather_title">Local Weather Assistant</span></div>
+          <span class="weather-loc-label-box" id="weatherLocLabel">NO LOCATION</span>
+        </div>
+        <div class="weather-main" id="weatherMain">
+          <div style="color:var(--text-muted);font-size:14px;grid-column:1/span 2;" data-t="weather_waiting">Enter location and run analysis to fetch live weather details and agricultural recommendations.</div>
+        </div>
+      </div>
+      <div class="outputs-grid">
+        <div class="output-card cause"><div class="output-card-header"><div class="output-card-dot"></div><span id="hdrCause" data-t="card_cause">Cause of Problem</span></div><div class="output-card-content" id="cardCause"><p data-t="waiting_trigger">Awaiting analysis trigger...</p></div></div>
+        <div class="output-card solution"><div class="output-card-header"><div class="output-card-dot"></div><span id="hdrSolution" data-t="card_solution">Target Solution</span></div><div class="output-card-content" id="cardSolution"><p data-t="waiting_trigger">Awaiting analysis trigger...</p></div></div>
+        <div class="output-card fertilizer"><div class="output-card-header"><div class="output-card-dot"></div><span id="hdrFertilizer" data-t="card_fertilizer">Fertilizer Plan</span></div><div class="output-card-content" id="cardFertilizer"><p data-t="waiting_trigger">Awaiting analysis trigger...</p></div></div>
+        <div class="output-card irrigation"><div class="output-card-header"><div class="output-card-dot"></div><span id="hdrIrrigation" data-t="card_irrigation">Irrigation Advice</span></div><div class="output-card-content" id="cardIrrigation"><p data-t="waiting_trigger">Awaiting analysis trigger...</p></div></div>
+        <div class="output-card prevention"><div class="output-card-header"><div class="output-card-dot"></div><span id="hdrPrevention" data-t="card_prevention">Prevention Steps</span></div><div class="output-card-content" id="cardPrevention"><p data-t="waiting_trigger">Awaiting analysis trigger...</p></div></div>
+        <div class="output-card subsidy"><div class="output-card-header"><div class="output-card-dot"></div><span id="hdrSubsidy" data-t="card_subsidy">Govt Subsidies</span></div><div class="output-card-content" id="cardSubsidy"><p data-t="waiting_trigger">Awaiting analysis trigger...</p></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AI CHAT ASSISTANT -->
+<div id="chatOverlay" onclick="closeChat()"></div>
+
+<button id="chatFab" onclick="toggleChat()" title="AI Farm Assistant Chat">
+  <div id="chatUnreadBadge">1</div>
+  <i data-lucide="message-circle" style="width:26px;height:26px;"></i>
+</button>
+
+<div id="chatPanel">
+  <div class="chat-header">
+    <div class="chat-avatar">&#127806;</div>
+    <div class="chat-header-info">
+      <div class="chat-header-name" id="chatHeaderName">Krishi AI Assistant</div>
+      <div class="chat-header-status"><div class="chat-online-dot"></div><span>Powered by AI</span></div>
+    </div>
+    <div class="chat-header-actions">
+      <button class="chat-icon-btn" onclick="clearChat()" title="Clear conversation"><i data-lucide="trash-2" style="width:15px;height:15px;"></i></button>
+      <button class="chat-icon-btn" onclick="closeChat()" title="Close"><i data-lucide="x" style="width:15px;height:15px;"></i></button>
+    </div>
+  </div>
+  <div id="chatContextBar">
+    <span class="ctx-label" id="ctxLabel">Context:</span>
+    <span class="ctx-chip crop" id="ctxCrop" style="display:none"></span>
+    <span class="ctx-chip problem" id="ctxProblem" style="display:none"></span>
+    <span class="ctx-chip loc" id="ctxLoc" style="display:none"></span>
+    <span class="ctx-chip season" id="ctxSeason" style="display:none"></span>
+  </div>
+  <div id="chatMessages"></div>
+  <div class="chat-input-area">
+    <div class="chat-input-row">
+      <textarea id="chatInput" placeholder="Ask about your crop, disease, fertilizers..." rows="1"
+        onkeydown="handleChatKey(event)" oninput="autoResizeTextarea(this)"></textarea>
+      <button id="chatSendBtn" onclick="sendChatMessage()">
+        <i data-lucide="send" style="width:18px;height:18px;"></i>
+      </button>
+    </div>
+    <div class="chat-input-hint">
+      <span id="chatHintText">Press Enter to send &middot; Shift+Enter for new line</span>
+      <button id="chatClearBtn" onclick="clearChat()">
+        <i data-lucide="refresh-ccw" style="width:11px;height:11px;"></i> Clear chat
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SERVER_URL = '/api';
+lucide.createIcons();
+
+let currentLang   = 'en';
+let lastAnalysis  = null;
+let lastWeather   = null;
+let chatHistory   = [];
+let isChatOpen    = false;
+let chatBotTyping = false;
+
+const weatherTranslationsPa = {
+  'Sunny': 'ਧੁੱਪ / ਸਾਫ਼', 'Clear': 'ਸਾਫ਼ ਅਸਮਾਨ', 'Partly cloudy': 'ਅੰਸ਼ਕ ਬੱਦਲਵਾਈ',
+  'Cloudy': 'ਬੱਦਲਵਾਈ', 'Overcast': 'ਘਣੇ ਬੱਦਲ', 'Mist': 'ਧੁੰਦ',
+  'Patchy rain possible': 'ਹਲਕੀ ਬਾਰਿਸ਼ ਸੰਭਵ', 'Patchy snow possible': 'ਬਰਫ਼ਬਾਰੀ ਸੰਭਵ',
+  'Thundery outbreaks possible': 'ਗਰਜ-ਚਮਕ ਦੀ ਸੰਭਾਵਨਾ', 'Fog': 'ਸੰਘਣੀ ਧੁੰਦ',
+  'Freezing fog': 'ਜੰਮਣ ਵਾਲੀ ਧੁੰਦ', 'Light drizzle': 'ਹਲਕੀ ਫੁਹਾਰ',
+  'Patchy light rain': 'ਕਿਣਮਿਣ / ਹਲਕਾ ਮੀਂਹ', 'Light rain': 'ਹਲਕਾ ਮੀਂਹ',
+  'Moderate rain': 'ਦਰਮਿਆਨਾ ਮੀਂਹ', 'Heavy rain': 'ਭਾਰੀ ਮੀਂਹ',
+  'Smoke': 'ਧੂੰਆਂ / ਪ੍ਰਦੂਸ਼ਣ ਧੁੰਦ', 'Haze': 'ਧੁੰਦਲਾਪਣ / ਗੁਬਾਰ'
+};
+
+const T = {
+  en:{
+    enter_dashboard:'Enter Dashboard',enter_dashboard_btn:'Enter Dashboard \u2192',learn_more:'Learn More',
+    hero_badge:'Smart Agricultural Technology',hero_title:'Turn Field Symptoms into <br><span>Instant Advice</span>',
+    hero_subtext:"An AI-powered crop advisory platform that transforms a farmer's four simple inputs into complete, actionable farming guidance in seconds.",
+    metric_inputs:'Input Fields',metric_outputs:'Advisory Outputs',metric_time:'Response Time',
+    features_title_1:'Key',features_title_2:'Features',
+    feat_1_title:'Instant Diagnosis',feat_1_desc:'Transform crop symptoms into likely causes in real time. No waiting for extension officers.',
+    feat_2_title:'Localized Advice',feat_2_desc:'Guidance tailored to your crop, season, region, and local farming practices.',
+    feat_3_title:'Prevention First',feat_3_desc:'Systemic steps to stop problems from recurring, not just treat symptoms.',
+    feat_4_title:'AI Chat Assistant',feat_4_desc:'Ask follow-up questions anytime. Get clarifications on any aspect of the advice.',
+    feat_5_title:'Subsidy Awareness',feat_5_desc:'Learn about applicable government crop protection schemes and subsidies.',
+    feat_6_title:'Bilingual Support',feat_6_desc:'Full support for English and Punjabi. Switch languages instantly.',
+    why_title_1:'Why Farmers',why_subtitle:'Actionable Insights Without Waiting',
+    benefit_1_title:'No Expert Delays',benefit_1_desc:'Instant response instead of waiting days for an agricultural officer.',
+    benefit_2_title:'Cost Effective',benefit_2_desc:'Free or low-cost per query. No consulting fees or visit charges.',
+    benefit_3_title:'Always Available',benefit_3_desc:'24/7 access. Ask questions anytime during the growing season.',
+    benefit_4_title:'Better Yields',benefit_4_desc:'Early diagnosis and prevention strategies lead to healthier crops and higher yields.',
+    tech_title_1:'Technical',tech_1_desc:'Clean, responsive frontend dashboard',tech_2_desc:'Secure direct API integrations',
+    tech_3_desc:'Fast AI model for smart crop advice',tech_4_desc:'Real-time local weather forecasts',
+    cta_title_1:'Ready to Transform Your',cta_sub:'Start getting AI-powered crop advice in seconds. No signup required.',cta_btn:'Launch Dashboard Now \u2192',
+    back_home:'Back Home',dash_badge_title:'Farmer Terminal Dashboard',api_credentials:'API Credentials Setup',
+    api_save_msg:'Keys saved securely in local storage.',badge_crop:'CROP',badge_problem:'PROBLEM',
+    badge_location:'LOCATION',badge_season:'SEASON',lbl_crop:'Crop Name',lbl_problem:'Detected Problem',
+    lbl_location:'Region / Location',lbl_season:'Season Profile',
+    lbl_weather_key:'WeatherAPI.com Key',
+    btn_analyze:'Analyze Crop Status',advisory_report:'AI Farm Advisory Report',status_idle:'Ready for Input',
+    status_loading:'Analyzing Status...',status_complete:'Analysis Completed',status_error:'Analysis Error',
+    weather_title:'Local Weather Assistant',
+    weather_waiting:'Enter location and run analysis to fetch live weather details and agricultural recommendations.',
+    card_cause:'Cause of Problem',card_solution:'Target Solution',card_fertilizer:'Fertilizer Plan',
+    card_irrigation:'Irrigation Advice',card_prevention:'Prevention Steps',card_subsidy:'Govt Subsidies',
+    waiting_trigger:'Awaiting analysis trigger...',
+    weather_api_required:'Please enter your WeatherAPI.com Key in settings.',
+    weather_fetch_error:'Could not retrieve weather details for location.',
+    inputs_required:'Please complete all Crop, Problem, Location, and Season details.',
+    chat_header_name:'Krishi AI Assistant',
+    chat_welcome_title:'Krishi AI Assistant',
+    chat_welcome_desc:'I am your intelligent farming advisor. Ask me anything about your crops, pests, fertilizers, or farming practices.',
+    qs_1:'\uD83C\uDF3F  What are signs of nitrogen deficiency?',
+    qs_2:'\uD83D\uDCA7  How often should I irrigate wheat?',
+    qs_3:'\uD83D\uDC1B  How do I control aphid infestation?',
+    qs_4:'\uD83C\uDFDB\uFE0F  What subsidies are available for Punjab farmers?',
+    chat_error:'Something went wrong. Please try again.',
+    ctx_label:'Context:',
+    lbl_humidity:'Humidity',lbl_wind:'Wind',lbl_uv:'UV Index',
+    lbl_precip:'Precip.',lbl_feelslike:'Feels Like',lbl_visibility:'Visibility',
+    weather_advisory_lbl:'Advisory',
+    opt_placeholder:'Select Season...',
+    opt_rabi:'Rabi (Winter)',opt_kharif:'Kharif (Summer)',opt_zaid:'Zaid (Spring)',opt_monsoon:'Monsoon (Rainy)'
+  },
+  pa:{
+    enter_dashboard:'ਡੈਸ਼ਬੋਰਡ ਵਿੱਚ ਜਾਓ',enter_dashboard_btn:'ਡੈਸ਼ਬੋਰਡ ਵਿੱਚ ਜਾਓ →',learn_more:'ਹੋਰ ਜਾਣੋ',
+    hero_badge:'ਸਮਾਰਟ ਖੇਤੀਬਾੜੀ ਤਕਨਾਲੋਜੀ',hero_title:'ਖੇਤ ਦੇ ਲੱਛਣਾਂ ਨੂੰ <span>ਤੁਰੰਤ ਸਲਾਹ</span> ਵਿੱਚ ਬਦਲੋ',
+    hero_subtext:'ਇੱਕ ਏਆਈ-ਸੰਚਾਲਿਤ ਫਸਲ ਸਲਾਹਕਾਰ ਪਲੇਟਫਾਰਮ ਜੋ ਸਕਿੰਟਾਂ ਵਿੱਚ ਸੰਪੂਰਨ ਖੇਤੀ ਦੀ ਦਿਸ਼ਾ ਦਿੰਦਾ ਹੈ',
+    metric_inputs:'ਇਨਪੁਟ ਖੇਤਰ',metric_outputs:'ਸਲਾਹਕਾਰੀ ਨਤੀਜੇ',metric_time:'ਜਵਾਬ ਦਾ ਸਮਾਂ',
+    features_title_1:'ਮੁੱਖ',features_title_2:'ਮੁੱਖ ਵਿਸ਼ੇਸ਼ਤਾਵਾਂ',
+    feat_1_title:'ਤੁਰੰਤ ਨਿਦਾਨ',feat_1_desc:'ਰੀਅਲ ਟਾਈਮ ਵਿੱਚ ਫਸਲਾਂ ਦੇ ਲੱਛਣਾਂ ਦੇ ਸੰਭਾਵਤ ਕਾਰਨਾਂ ਵਿੱਚ ਬਦਲੋ',
+    feat_2_title:'ਸਥਾਨਕ ਸਲਾਹ',feat_2_desc:'ਤੁਹਾਡੀ ਫਸਲ, ਮੌਸਮ, ਖੇਤਰ ਦੇ ਅਨੁਕੂਲ ਮਾਰਗਦਰਸ਼ਨ',
+    feat_3_title:'ਬਚਾਅ ਪਹਿਲਾਂ',feat_3_desc:'ਸਮੱਸਿਆਵਾਂ ਦੁਬਾਰਾ ਹੋਣ ਤੋਂ ਰੋਕਣ ਲਈ ਯੋਜਨਾਬੱਧ ਕਦਮ',
+    feat_4_title:'ਏਆਈ ਚੈਟ ਸਹਾਇਕ',feat_4_desc:'ਕਿਸੇ ਵੀ ਸਮੇਂ ਸਵਾਲ ਪੁੱਛੋ',
+    feat_5_title:'ਸਬਸਿਡੀ ਜਾਗਰੂਕਤਾ',feat_5_desc:'ਲਾਗੂ ਸਰਕਾਰੀ ਫਸਲ ਸੁਰੱਖਿਆ ਸਕੀਮਾਂ ਬਾਰੇ ਜਾਣੋ',
+    feat_6_title:'ਦੋਭਾਸ਼ੀ ਸਹਾਇਤਾ',feat_6_desc:'ਅੰਗਰੇਜ਼ੀ ਅਤੇ ਪੰਜਾਬੀ ਲਈ ਪੂਰਾ ਸਮਰਥਨ',
+    why_title_1:'ਕਿਸਾਨ ਕਿਉਂ',why_subtitle:'ਬਿਨਾਂ ਉਡੀਕ ਕੀਤੇ ਕਾਰਵਾਈਯੋਗ ਜਾਣਕਾਰੀ',
+    benefit_1_title:'ਕੋਈ ਮਾਹਰ ਦੇਰੀ ਨਹੀਂ',benefit_1_desc:'ਖੇਤੀਬਾੜੀ ਅਧਿਕਾਰੀ ਦੀ ਉਡੀਕ ਦੀ ਬਜਾਏ ਤੁਰੰਤ ਜਵਾਬ',
+    benefit_2_title:'ਕਿਫਾਇਤੀ',benefit_2_desc:'ਮੁਫਤ ਜਾਂ ਬਹੁਤ ਘੱਟ ਲਾਗਤ ਤੇ ਕੋਈ ਸਲਾਹ ਮਸ਼ਵਰਾ ਫੀਸ ਨਹੀਂ',
+    benefit_3_title:'ਹਮੇਸ਼ਾ ਉਪਲਬਧ',benefit_3_desc:'24/7 ਪਹੁੰਚ ਕਿਸੇ ਵੀ ਸਮੇਂ ਸਵਾਲ ਪੁੱਛੋ',
+    benefit_4_title:'ਬਿਹਤਰ ਝਾੜ',benefit_4_desc:'ਸ਼ੁਰੂਆਤੀ ਨਿਦਾਨ ਅਤੇ ਰੋਕਥਾਮ ਨਾਲ ਉੱਚ ਝਾੜ ਵੱਲ ਵਧੋ',
+    tech_title_1:'ਤਕਨੀਕੀ',tech_1_desc:'ਸਾਫ਼ ਫਰੰਟੈਂਡ ਡੈਸ਼ਬੋਰਡ',tech_2_desc:'ਸੁਰੱਖਿਅਤ API ਏਕੀਕਰਣ',
+    tech_3_desc:'ਸਮਾਰਟ ਖੇਤੀਬਾੜੀ ਸਲਾਹ ਲਈ ਤੇਜ਼ AI ਮਾਡਲ',tech_4_desc:'ਰੀਅਲ-ਟਾਈਮ ਮੌਸਮ ਦੀ ਭਵਿੱਖਬਾਣੀ',
+    cta_title_1:'ਆਪਣੀ ਖੇਤੀ ਨੂੰ ਬਦਲਣ ਲਈ',cta_sub:'ਸਕਿੰਟਾਂ ਵਿੱਚ ਏਆਈ ਫਸਲ ਸਲਾਹ ਪ੍ਰਾਪਤ ਕਰੋ',cta_btn:'ਹੁਣੇ ਡੈਸ਼ਬੋਰਡ ਲਾਂਚ ਕਰੋ →',
+    back_home:'ਪਿੱਛੇ ਜਾਓ',dash_badge_title:'ਕਿਸਾਨ ਟਰਮੀਨਲ ਡੈਸ਼ਬੋਰਡ',api_credentials:'API ਪ੍ਰਮਾਣ ਪੱਤਰ ਸੈਟਅੱਪ',
+    api_save_msg:'ਕੁੰਜੀਆਂ ਲੋਕਲ ਸਟੋਰੇਜ ਵਿੱਚ ਸੁਰੱਖਿਅਤ ਹਨ',badge_crop:'ਫਸਲ',badge_problem:'ਸਮੱਸਿਆ',badge_location:'ਸਥਾਨ',badge_season:'ਮੌਸਮ',
+    lbl_crop:'ਫਸਲ ਦਾ ਨਾਮ',lbl_problem:'ਖੋਜੀ ਗਈ ਸਮੱਸਿਆ',lbl_location:'ਖੇਤਰ / ਸਥਾਨ',lbl_season:'ਮੌਸਮ ਪ੍ਰੋਫਾਈਲ',
+    lbl_weather_key:'WeatherAPI.com ਕੁੰਜੀ',
+    btn_analyze:'ਫਸਲ ਦੀ ਸਥਿਤੀ ਦਾ ਵਿਸ਼ਲੇਸ਼ਣ ਕਰੋ',advisory_report:'ਏਆਈ ਖੇਤ ਸਲਾਹਕਾਰ ਰਿਪੋਰਟ',
+    status_idle:'ਇਨਪੁਟ ਲਈ ਤਿਆਰ',status_loading:'ਵਿਸ਼ਲੇਸ਼ਣ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ',status_complete:'ਵਿਸ਼ਲੇਸ਼ਣ ਪੂਰਾ ਹੋ ਗਿਆ',status_error:'ਵਿਸ਼ਲੇਸ਼ਣ ਵਿੱਚ ਤਰੁੱਟੀ',
+    weather_title:'ਸਥਾਨਕ ਮੌਸਮ ਸਹਾਇਕ',weather_waiting:'ਸਥਾਨਕ ਮੌਸਮ ਦੇ ਵੇਰਵੇ ਪ੍ਰਾਪਤ ਕਰਨ ਲਈ ਸਥਾਨ ਦਰਜ ਕਰੋ',
+    card_cause:'ਸਮੱਸਿਆ ਦਾ ਸੰਭਾਵਿਤ ਕਾਰਨ',card_solution:'ਨਿਸ਼ਾਨਾ ਹੱਲ',card_fertilizer:'ਖਾਦ ਦੀ ਯੋਜਨਾ',card_irrigation:'ਸਿੰਚਾਈ ਦੀ ਸਲਾਹ',
+    card_prevention:'ਬਚਾਅ ਦੇ ਕਦਮ',card_subsidy:'ਸਰਕਾਰੀ ਸਬਸਿਡੀਆਂ',waiting_trigger:'ਵਿਸ਼ਲੇਸ਼ਣ ਸ਼ੁਰੂ ਕਰਨ ਦੀ ਉਡੀਕ ਹੈ...',
+    weather_api_required:'ਕਿਰਪਾ ਕਰਕੇ ਸੈਟਿੰਗਾਂ ਵਿੱਚ WeatherAPI.com ਕੁੰਜੀ ਦਰਜ ਕਰੋ',weather_fetch_error:'ਸਥਾਨ ਲਈ ਮੌਸਮ ਦੇ ਵੇਰਵੇ ਪ੍ਰਾਪਤ ਨਹੀਂ ਹੋਏ',
+    inputs_required:'ਕਿਰਪਾ ਕਰਕੇ ਫਸਲ, ਸਮੱਸਿਆ, ਸਥਾਨ ਅਤੇ ਮੌਸਮ ਦੇ ਸਾਰੇ ਵੇਰਵੇ ਭਰੋ',
+    chat_header_name:'ਕ੍ਰਿਸ਼ੀ ਏਆਈ ਸਹਾਇਕ',chat_welcome_title:'ਕ੍ਰਿਸ਼ੀ ਏਆਈ ਸਹਾਇਕ',
+    chat_welcome_desc:'ਤੁਹਾਡਾ ਬੁੱਧੀਮਾਨ ਖੇਤੀਬਾੜੀ ਸਲਾਹਕਾਰ ਹਾਂ',
+    qs_1:'🌿 ਨਾਈਟ੍ਰੋਜਨ ਦੀ ਕਮੀ ਦੇ ਕੀ ਲੱਛਣ ਹਨ?',qs_2:'💧 ਕਣਕ ਨੂੰ ਕਿੰਨੀ ਵਾਰ ਸਿੰਚਾਈ ਕਰਨੀ ਚਾਹੀਦੀ ਹੈ?',
+    qs_3:'🐛 ਮਾਹੂ ਦੇ ਹਮਲੇ ਨੂੰ ਕਿਵੇਂ ਕੰਟਰੋਲ ਕਰੀਏ?',qs_4:'🏛️ ਪੰਜਾਬ ਦੇ ਕਿਸਾਨਾਂ ਲਈ ਕਿਹੜੀਆਂ ਸਬਸਿਡੀਆਂ ਹਨ?',
+    chat_error:'ਕੁਝ ਗਲਤ ਹੋ ਗਿਆ। ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ',
+    ctx_label:'ਸੰਦਰਭ:',lbl_humidity:'ਨਮੀ',lbl_wind:'ਹਵਾ ਦੀ ਰਫ਼ਤਾਰ',lbl_uv:'ਯੂਵੀ ਇੰਡੈਕਸ',
+    lbl_precip:'ਵਰਖਾ / ਮੀਂਹ',lbl_feelslike:'ਮਹਿਸੂਸ ਤਾਪਮਾਨ',lbl_visibility:'ਦ੍ਰਿਸ਼ਟੀ',
+    weather_advisory_lbl:'ਮੌਸਮੀ ਸਲਾਹ',opt_placeholder:'ਮੌਸਮ ਚੁਣੋ...',
+    opt_rabi:'ਹਾੜੀ (ਸਰਦੀ / Rabi)',opt_kharif:'ਸਾਉਣੀ (ਗਰਮੀ / Kharif)',opt_zaid:'ਜ਼ਾਇਦ (ਬਸੰਤ / Zaid)',opt_monsoon:'ਮਾਨਸੂਨ (ਬਰਸਾਤ / Monsoon)'
+  }
+};
+
+const CARD_HEADER_IDS = {
+  cause: 'hdrCause', solution: 'hdrSolution', fertilizer: 'hdrFertilizer',
+  irrigation: 'hdrIrrigation', prevention: 'hdrPrevention', subsidy: 'hdrSubsidy'
+};
+
+const CARD_HEADER_TITLES = {
+  en: {
+    cause: 'Cause of Problem', solution: 'Target Solution', fertilizer: 'Fertilizer Plan',
+    irrigation: 'Irrigation Advice', prevention: 'Prevention Steps', subsidy: 'Govt Subsidies'
+  },
+  pa: {
+    cause: 'ਸਮੱਸਿਆ ਦਾ ਸੰਭਾਵਿਤ ਕਾਰਨ', solution: 'ਨਿਸ਼ਾਨਾ ਹੱਲ', fertilizer: 'ਖਾਦ ਦੀ ਯੋਜਨਾ',
+    irrigation: 'ਸਿੰਚਾਈ ਦੀ ਸਲਾਹ', prevention: 'ਬਚਾਅ ਦੇ ਕਦਮ', subsidy: 'ਸਰਕਾਰੀ ਸਬਸਿਡੀਆਂ'
+  }
+};
+
+function applyCardHeaders(lang) {
+  const titles = CARD_HEADER_TITLES[lang] || CARD_HEADER_TITLES.en;
+  Object.keys(CARD_HEADER_IDS).forEach(key => {
+    const el = document.getElementById(CARD_HEADER_IDS[key]);
+    if (el && titles[key]) el.textContent = titles[key];
+  });
+}
+
+window.onload = function() {
+  const sw = localStorage.getItem('farming_weather_key') || '';
+  if (sw) document.getElementById('weatherKey').value = sw;
+  ['crop','problem','location','season'].forEach(t => syncBadge(t));
+  renderChatWelcome();
+  applyCardHeaders(currentLang);
+  lucide.createIcons();
+  setTimeout(() => {
+    const b = document.getElementById('chatUnreadBadge');
+    if (b) { b.style.display = 'flex'; setTimeout(() => { b.style.display = 'none'; }, 5000); }
+  }, 3000);
+};
+
+function saveCredentials() {
+  localStorage.setItem('farming_weather_key', document.getElementById('weatherKey').value.trim());
+}
+function getWeatherKey() { return document.getElementById('weatherKey').value.trim(); }
+
+function toggleCredentials() {
+  const c = document.getElementById('credContent'), h = document.getElementById('credToggle'), a = document.getElementById('credArrow');
+  const o = c.classList.contains('open');
+  c.classList.toggle('open', !o); h.classList.toggle('open', !o);
+  a.style.transform = o ? 'rotate(0deg)' : 'rotate(180deg)';
+}
+
+function scrollToFeatures() { document.getElementById('features').scrollIntoView({behavior:'smooth'}); }
+function showDashboard() { document.getElementById('landing-page').style.display='none'; document.getElementById('dashboard-page').style.display='block'; window.scrollTo(0,0); }
+function showHome()      { document.getElementById('dashboard-page').style.display='none'; document.getElementById('landing-page').style.display='block'; window.scrollTo(0,0); }
+
+async function setLanguage(lang) {
+  currentLang = lang;
+  ['lang-en','lang-pa','dash-lang-en','dash-lang-pa'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('active', (lang==='en' && id.includes('en')) || (lang==='pa' && id.includes('pa')));
+  });
+
+  document.querySelectorAll('[data-t]').forEach(el => {
+    const k = el.getAttribute('data-t');
+    if (T[lang][k] !== undefined) el.innerHTML = T[lang][k];
+  });
+
+  applyCardHeaders(lang);
+
+  ['placeholder','rabi','kharif','zaid','monsoon'].forEach(opt => {
+    const el = document.getElementById('opt_' + opt);
+    if (el && T[lang]['opt_' + opt]) el.textContent = T[lang]['opt_' + opt];
+  });
+
+  document.getElementById('chatHeaderName').textContent = T[lang]['chat_header_name'] || 'Krishi AI Assistant';
+  document.getElementById('ctxLabel').textContent = T[lang]['ctx_label'] || 'Context:';
+
+  if (lastAnalysis) setStatus('complete');
+  ['crop','problem','location','season'].forEach(t => syncBadge(t));
+  if (chatHistory.length === 0) renderChatWelcome();
+  if (lastWeather) renderWeatherDisplay();
+  if (lastAnalysis) renderAnalysisCards();
+}
+
+function syncBadge(type) {
+  const id  = type === 'season' ? 'inputSeason' : 'input' + type.charAt(0).toUpperCase() + type.slice(1);
+  const sel = document.getElementById(id);
+  const val = sel.value;
+  const ve  = document.getElementById(type + 'Val');
+  const bg  = document.getElementById(type + 'Badge');
+
+  if (val) {
+    if (type === 'season' && currentLang === 'pa') {
+      const selectedOpt = sel.options[sel.selectedIndex];
+      ve.innerText = selectedOpt ? selectedOpt.text : val;
+    } else {
+      ve.innerText = val;
+    }
+    bg.classList.add('active');
+  } else {
+    ve.innerText = currentLang === 'pa' ? 'ਖ਼ਾਲੀ' : '-';
+    bg.classList.remove('active');
+  }
+  updateChatContextBar();
+}
+
+function setStatus(state) {
+  const b = document.getElementById('statusBadge');
+  const t = document.getElementById('statusText');
+  b.className = 'status-badge' + (state === 'loading' ? ' loading' : state === 'complete' ? ' active' : '');
+  t.innerText = T[currentLang]['status_' + state] || state;
+}
+
+function setSkeletons() {
+  ['cardCause','cardSolution','cardFertilizer','cardIrrigation','cardPrevention','cardSubsidy'].forEach(id => {
+    document.getElementById(id).innerHTML = '<div class="skeleton-text"></div><div class="skeleton-text"></div><div class="skeleton-text"></div>';
+  });
+}
+
+function escapeHtml(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Single place that talks to the Python server (/api/generate)
+async function callGemini(contents, systemText, opts = {}) {
+  const payloadContents = [];
+  if (Array.isArray(contents)) {
+    contents.forEach(item => {
+      let text = '';
+      if (typeof item.content === 'string') text = item.content;
+      else if (typeof item.text === 'string') text = item.text;
+      payloadContents.push({ role: item.role || 'user', text });
+    });
+  } else if (typeof contents === 'string') {
+    payloadContents.push({ role: 'user', text: contents });
+  }
+
+  const res = await fetch(SERVER_URL + '/generate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: payloadContents,
+      system: systemText || '',
+      temperature: opts.temperature ?? 0.3,
+      maxTokens: opts.maxTokens ?? 2048
+    })
+  });
+
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || ('Server error (' + res.status + ')'));
+  const reply = (data.text || '').trim();
+  if (!reply) throw new Error('Empty response from server');
+  return reply;
+}
+
+function renderAnalysisCards() {
+  if (!lastAnalysis) return;
+  const lang = currentLang === 'pa' ? 'pa' : 'en';
+  const r = lastAnalysis[lang] || {};
+  const ids = {
+    cause: 'cardCause', solution: 'cardSolution', fertilizer: 'cardFertilizer',
+    irrigation: 'cardIrrigation', prevention: 'cardPrevention', subsidy: 'cardSubsidy'
+  };
+  const missing = lang === 'pa' ? 'ਜਾਣਕਾਰੀ ਉਪਲਬਧ ਨਹੀਂ' : 'No information returned';
+  Object.keys(ids).forEach(k => {
+    const text = (r[k] || '').trim() || missing;
+    document.getElementById(ids[k]).innerHTML = '<p>' + escapeHtml(text) + '</p>';
+  });
+}
+
+async function runAnalysis() {
+  const crop     = document.getElementById('inputCrop').value.trim();
+  const problem  = document.getElementById('inputProblem').value.trim();
+  const location = document.getElementById('inputLocation').value.trim();
+  const season   = document.getElementById('inputSeason').value;
+
+  if (!crop || !problem || !location || !season) { alert(T[currentLang]['inputs_required']); return; }
+
+  setStatus('loading');
+  setSkeletons();
+  fetchWeather(location);
+
+  try {
+    const res = await fetch(SERVER_URL + '/report', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ crop, problem, location, season })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || ('Server error (' + res.status + ')'));
+
+    lastAnalysis = { crop, problem, location, season, en: data.en, pa: data.pa };
+    renderAnalysisCards();
+    updateChatContextBar();
+    setStatus('complete');
+  } catch (err) {
+    ['cardCause','cardSolution','cardFertilizer','cardIrrigation','cardPrevention','cardSubsidy'].forEach(id => {
+      document.getElementById(id).innerHTML = '<p style="color:var(--accent-red);">Error: ' + escapeHtml(err.message) + '</p>';
+    });
+    setStatus('error');
+  }
+}
+
+function renderWeatherDisplay() {
+  if (!lastWeather) return;
+  const { c, l, advisoryEn, advisoryPa } = lastWeather;
+  const ww = document.getElementById('weatherWidget'), wm = document.getElementById('weatherMain'), lbl = document.getElementById('weatherLocLabel');
+  lbl.textContent = (currentLang === 'pa' && l.name.toLowerCase() === 'punjab') ? 'ਪੰਜਾਬ' : l.name.toUpperCase();
+
+  let condText = c.condition.text;
+  if (currentLang === 'pa') condText = weatherTranslationsPa[c.condition.text.trim()] || c.condition.text;
+
+  const t = T[currentLang];
+  ww.classList.add('active');
+  wm.innerHTML =
+    '<div class="weather-temp-block"><img src="https:' + c.condition.icon + '" class="weather-icon-img" alt=""><div>' +
+    '<div class="weather-temp">' + c.temp_c + '&deg;C</div>' +
+    '<div style="font-size:13px;color:var(--text-muted);margin-top:4px;font-weight:500;">' + escapeHtml(condText) + '</div>' +
+    '</div></div>' +
+    '<div class="weather-details">' +
+    '<div class="weather-detail-item"><div class="weather-detail-label">' + t.lbl_humidity + '</div><div class="weather-detail-val">' + c.humidity + '%</div></div>' +
+    '<div class="weather-detail-item"><div class="weather-detail-label">' + t.lbl_wind + '</div><div class="weather-detail-val">' + c.wind_kph + ' km/h</div></div>' +
+    '<div class="weather-detail-item"><div class="weather-detail-label">' + t.lbl_uv + '</div><div class="weather-detail-val">' + c.uv + '</div></div>' +
+    '<div class="weather-detail-item"><div class="weather-detail-label">' + t.lbl_precip + '</div><div class="weather-detail-val">' + c.precip_mm + ' mm</div></div>' +
+    '<div class="weather-detail-item"><div class="weather-detail-label">' + t.lbl_feelslike + '</div><div class="weather-detail-val">' + c.feelslike_c + '&deg;C</div></div>' +
+    '<div class="weather-detail-item"><div class="weather-detail-label">' + t.lbl_visibility + '</div><div class="weather-detail-val">' + c.vis_km + ' km</div></div>' +
+    '</div>';
+
+  ww.querySelectorAll('.weather-advisory-box').forEach(el => el.remove());
+  const advText = (currentLang === 'pa' ? advisoryPa : advisoryEn);
+  if (advText) {
+    const ab = document.createElement('div');
+    ab.className = 'weather-advisory-box';
+    ab.innerHTML = '<strong>&#127807; ' + (currentLang === 'pa' ? 'ਮੌਸਮੀ ਸਲਾਹ' : 'Advisory') + ':</strong> ' + escapeHtml(advText);
+    ww.appendChild(ab);
+  }
+}
+
+async function fetchWeather(location) {
+  const wk  = getWeatherKey();
+  const lbl = document.getElementById('weatherLocLabel'), wm = document.getElementById('weatherMain'), ww = document.getElementById('weatherWidget');
+  lbl.textContent = location.toUpperCase();
+  ww.querySelectorAll('.weather-advisory-box').forEach(el => el.remove());
+
+  if (!wk) {
+    wm.innerHTML = '<div style="color:var(--text-muted);font-size:14px;grid-column:1/span 2;">' + T[currentLang]['weather_api_required'] + '</div>';
+    return;
+  }
+  wm.innerHTML = '<div style="color:var(--text-muted);font-size:14px;grid-column:1/span 2;">Fetching weather...</div>';
+  try {
+    const res  = await fetch('https://api.weatherapi.com/v1/current.json?key=' + encodeURIComponent(wk) + '&q=' + encodeURIComponent(location) + '&aqi=no');
+    const data = await res.json();
+    if (!res.ok || data.error) throw new Error(data.error?.message || 'Weather error');
+    const c = data.current, l = data.location;
+    lastWeather = { c, l, advisoryEn: '', advisoryPa: '' };
+    renderWeatherDisplay();
+
+    const crop = document.getElementById('inputCrop').value.trim() || 'crops';
+    const lang = currentLang;
+    const prompt = lang === 'pa'
+      ? `ਮੌਜੂਦਾ ਮੌਸਮ: ${l.name}, ਤਾਪਮਾਨ: ${c.temp_c}°C, ਨਮੀ: ${c.humidity}%, ਸਥਿਤੀ: ${c.condition.text}. ${crop} ਲਈ 1-2 ਵਾਕਾਂ ਵਿੱਚ ਖੇਤੀਬਾੜੀ ਸਲਾਹ ਸਿਰਫ਼ ਪੰਜਾਬੀ (ਗੁਰਮੁਖੀ) ਵਿੱਚ ਦਿਓ।`
+      : `Current weather in ${l.name}: ${c.temp_c}C, ${c.humidity}% humidity, condition: ${c.condition.text}. Give a 1-2 sentence practical farming advisory for ${crop}.`;
+    const advice = await callGemini([{ role: 'user', content: prompt }], 'You are a concise agricultural advisor.', { maxTokens: 200 });
+    if (lang === 'pa') lastWeather.advisoryPa = advice; else lastWeather.advisoryEn = advice;
+    renderWeatherDisplay();
+  } catch (err) {
+    wm.innerHTML = '<div style="color:var(--text-muted);font-size:14px;grid-column:1/span 2;">' + T[currentLang]['weather_fetch_error'] + '</div>';
+  }
+}
+
+function toggleChat() { isChatOpen ? closeChat() : openChat(); }
+function openChat() {
+  isChatOpen = true;
+  document.getElementById('chatPanel').classList.add('open');
+  document.getElementById('chatOverlay').classList.add('visible');
+  document.getElementById('chatFab').classList.add('open');
+  document.getElementById('chatUnreadBadge').style.display = 'none';
+  setTimeout(() => document.getElementById('chatInput').focus(), 350);
+}
+function closeChat() {
+  isChatOpen = false;
+  document.getElementById('chatPanel').classList.remove('open');
+  document.getElementById('chatOverlay').classList.remove('visible');
+  document.getElementById('chatFab').classList.remove('open');
+}
+
+function updateChatContextBar() {
+  const crop = document.getElementById('inputCrop').value.trim();
+  const prob = document.getElementById('inputProblem').value.trim();
+  const loc  = document.getElementById('inputLocation').value.trim();
+  const sea  = document.getElementById('inputSeason').value;
+  const bar  = document.getElementById('chatContextBar');
+  const chips = [
+    {id:'ctxCrop',    val:crop, label:'\uD83C\uDF3E ' + crop},
+    {id:'ctxProblem', val:prob, label:'\u26A0\uFE0F ' + prob},
+    {id:'ctxLoc',     val:loc,  label:'\uD83D\uDCCD ' + loc},
+    {id:'ctxSeason',  val:sea,  label:'\uD83C\uDF24\uFE0F ' + sea}
+  ];
+  let any = false;
+  chips.forEach(({id,val,label}) => {
+    const el = document.getElementById(id);
+    if (val) { el.textContent = label; el.style.display = 'flex'; any = true; }
+    else { el.style.display = 'none'; }
+  });
+  bar.classList.toggle('visible', any);
+}
+
+function renderChatWelcome() {
+  const t = T[currentLang];
+  document.getElementById('chatMessages').innerHTML =
+    '<div class="chat-welcome"><div class="chat-welcome-icon">\uD83C\uDF3E</div><h4>' + (t.chat_welcome_title || 'Krishi AI Assistant') +
+    '</h4><p>' + (t.chat_welcome_desc || '') + '</p><div class="quick-suggestions">' +
+    '<button class="quick-chip" onclick="sendQuickMsg(this)">' + (t.qs_1||'') + '</button>' +
+    '<button class="quick-chip" onclick="sendQuickMsg(this)">' + (t.qs_2||'') + '</button>' +
+    '<button class="quick-chip" onclick="sendQuickMsg(this)">' + (t.qs_3||'') + '</button>' +
+    '<button class="quick-chip" onclick="sendQuickMsg(this)">' + (t.qs_4||'') + '</button>' +
+    '</div></div>';
+}
+
+function sendQuickMsg(btn) { document.getElementById('chatInput').value = btn.textContent.trim(); sendChatMessage(); }
+function handleChatKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChatMessage(); } }
+function autoResizeTextarea(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 120) + 'px'; }
+
+function formatBotResponse(text) {
+  return escapeHtml(text)
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/^- (.+)$/gm, '<li>$1</li>')
+    .replace(/(<li>[\s\S]*?<\/li>)+/g, m => '<ul>' + m + '</ul>')
+    .replace(/\n{2,}/g, '</p><p>')
+    .replace(/\n/g, '<br>');
+}
+
+function appendMessage(role, text, isError) {
+  const msgs = document.getElementById('chatMessages');
+  const w = msgs.querySelector('.chat-welcome');
+  if (w) w.remove();
+  const isUser = role === 'user';
+  const ts = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  const row = document.createElement('div');
+  row.className = 'msg-row ' + (isUser ? 'user' : 'bot');
+  if (isError) {
+    row.innerHTML = '<div class="msg-avatar bot">\uD83C\uDF3E</div><div><div class="error-bubble">\u26A0\uFE0F ' + escapeHtml(text) + '</div><div class="msg-time">' + ts + '</div></div>';
+  } else if (isUser) {
+    row.innerHTML = '<div><div class="msg-bubble">' + escapeHtml(text) + '</div><div class="msg-time">' + ts + '</div></div><div class="msg-avatar user-av">\uD83D\uDC68\u200D\uD83C\uDF3E</div>';
+  } else {
+    row.innerHTML = '<div class="msg-avatar bot">\uD83C\uDF3E</div><div><div class="msg-bubble">' + formatBotResponse(text) + '</div><div class="msg-time">' + ts + '</div></div>';
+  }
+  msgs.appendChild(row);
+  msgs.scrollTop = msgs.scrollHeight;
+  return row;
+}
+
+function showTypingIndicator() {
+  const msgs = document.getElementById('chatMessages');
+  const d = document.createElement('div');
+  d.className = 'msg-row bot';
+  d.id = 'chatTypingRow';
+  d.innerHTML = '<div class="msg-avatar bot">\uD83C\uDF3E</div><div class="msg-bubble" style="padding:0;background:rgba(28,43,66,0.7);border:1px solid rgba(255,255,255,0.06);"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>';
+  msgs.appendChild(d);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function removeTypingIndicator() {
+  const e = document.getElementById('chatTypingRow');
+  if (e) e.remove();
+}
+
+function buildSystemContext() {
+  const crop = document.getElementById('inputCrop').value.trim();
+  const prob = document.getElementById('inputProblem').value.trim();
+  const loc  = document.getElementById('inputLocation').value.trim();
+  const sea  = document.getElementById('inputSeason').value;
+
+  let ctx = '';
+  if (currentLang === 'pa') {
+    ctx = 'ਤੁਸੀਂ Krishi AI ਹੋ, ਭਾਰਤ ਅਤੇ ਖਾਸ ਕਰਕੇ ਪੰਜਾਬ ਦੇ ਕਿਸਾਨਾਂ ਲਈ ਇੱਕ ਮਾਹਿਰ ਖੇਤੀਬਾੜੀ ਸਲਾਹਕਾਰ। ਸਾਰੇ ਜਵਾਬ ਸਿਰਫ਼ ਅਤੇ ਸਿਰਫ਼ ਪੰਜਾਬੀ (ਗੁਰਮੁਖੀ ਲਿਪੀ) ਵਿੱਚ ਦਿਓ। ਕੋਈ ਵੀ ਅੰਗਰੇਜ਼ੀ ਸ਼ਬਦ ਨਾ ਲਿਖੋ।';
+    if (crop || prob || loc || sea) {
+      ctx += '\n\nਡੈਸ਼ਬੋਰਡ ਤੋਂ ਫਸਲ ਦਾ ਵੇਰਵਾ:';
+      if (crop) ctx += '\n- ਫਸਲ: ' + crop;
+      if (prob) ctx += '\n- ਸਮੱਸਿਆ: ' + prob;
+      if (loc)  ctx += '\n- ਸਥਾਨ: ' + loc;
+      if (sea)  ctx += '\n- ਮੌਸਮ: ' + sea;
+    }
+    if (lastAnalysis?.pa) {
+      const r = lastAnalysis.pa;
+      ctx += '\n\nਪਹਿਲਾਂ ਕੀਤਾ ਵਿਸ਼ਲੇਸ਼ਣ:\n- ਕਾਰਨ: ' + (r.cause||'') + '\n- ਹੱਲ: ' + (r.solution||'') +
+             '\n- ਖਾਦ: ' + (r.fertilizer||'') + '\n- ਸਿੰਚਾਈ: ' + (r.irrigation||'') +
+             '\n- ਬਚਾਅ: ' + (r.prevention||'') + '\n- ਸਬਸਿਡੀ: ' + (r.subsidy||'');
+    }
+  } else {
+    ctx = 'You are Krishi AI, an expert agricultural advisor for farmers in India. Respond in clear, helpful English.';
+    if (crop || prob || loc || sea) {
+      ctx += '\n\nFarm context:';
+      if (crop) ctx += '\n- Crop: ' + crop;
+      if (prob) ctx += '\n- Problem: ' + prob;
+      if (loc)  ctx += '\n- Region: ' + loc;
+      if (sea)  ctx += '\n- Season: ' + sea;
+    }
+    if (lastAnalysis?.en) {
+      const r = lastAnalysis.en;
+      ctx += '\n\nAnalysis reference:\n- Cause: ' + (r.cause||'') + '\n- Solution: ' + (r.solution||'') +
+             '\n- Fertilizer: ' + (r.fertilizer||'') + '\n- Irrigation: ' + (r.irrigation||'') +
+             '\n- Prevention: ' + (r.prevention||'') + '\n- Subsidy: ' + (r.subsidy||'');
+    }
+  }
+  return ctx;
+}
+
+async function sendChatMessage() {
+  const input = document.getElementById('chatInput');
+  const text  = input.value.trim();
+  if (!text || chatBotTyping) return;
+
+  input.value = '';
+  input.style.height = 'auto';
+  appendMessage('user', text);
+  chatHistory.push({ role: 'user', content: text });
+
+  chatBotTyping = true;
+  document.getElementById('chatSendBtn').disabled = true;
+  showTypingIndicator();
+
+  try {
+    const reply = await callGemini(chatHistory, buildSystemContext(), { temperature: 0.7, maxTokens: 1024 });
+    removeTypingIndicator();
+    appendMessage('bot', reply);
+    chatHistory.push({ role: 'assistant', content: reply });
+    if (!isChatOpen) document.getElementById('chatUnreadBadge').style.display = 'flex';
+  } catch (err) {
+    removeTypingIndicator();
+    appendMessage('bot', (T[currentLang]['chat_error'] || 'Error') + ' (' + err.message + ')', true);
+    chatHistory.pop();
+  } finally {
+    chatBotTyping = false;
+    document.getElementById('chatSendBtn').disabled = false;
+    document.getElementById('chatInput').focus();
+  }
+}
+
+function clearChat() {
+  chatHistory = [];
+  renderChatWelcome();
+  updateChatContextBar();
+}
+</script>
+</body>
+</html>
