@@ -1,7 +1,7 @@
 import os
 import re
 import time
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from groq import Groq
 
@@ -13,7 +13,13 @@ client = Groq(api_key=API_KEY)
 app = Flask(__name__)
 CORS(app)
 
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECTIONS = ["CAUSE", "SOLUTION", "FERTILIZER", "IRRIGATION", "PREVENTION", "SUBSIDY"]
+
+
+@app.route("/", methods=["GET"])
+def home():
+    return send_file(os.path.join(ROOT_DIR, "index.html"))
 
 
 def call_model(messages, temperature=0.3, max_tokens=2048):
